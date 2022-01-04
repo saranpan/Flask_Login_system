@@ -1,0 +1,7 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <h1 class='mb-4'>About you</h1>
+    <p class='lead'>Username : {{ current_user.username }}</p>
+    <p class='lead'>Email : {{ current_user.email }}</p>
+{% endblock content %}
