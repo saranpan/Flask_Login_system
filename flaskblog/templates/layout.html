@@ -56,8 +56,9 @@
 
 
     <main role="main" class="container">
-        <div class="row">
-          <div class="col-md-8">
+        <div class="row justify-content-center">
+
+          <div class="col-md-7">
 
             <!--FLASH message!!!-->
             {% with messages = get_flashed_messages(with_categories=true) %}
@@ -74,6 +75,7 @@
             {% block content %}{% endblock %}
             
           </div>
+
           <div class="col-md-4">
             <div class="content-section">
               <h3>Our Sidebar</h3>

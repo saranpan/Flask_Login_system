@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, PasswordField, SubmitField, BooleanField
-from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
+from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, Optional
 from flaskblog.models import User
 
 #Inherit FlaskForm
@@ -14,13 +15,17 @@ class RegistrationForm(FlaskForm):
     password = PasswordField('Password',
                             validators=[DataRequired()] )    
 
-    confirm_password = StringField('Confirm Password',
+    confirm_password = PasswordField('Confirm Password',
                             validators=[DataRequired(),EqualTo('password')])       
 
     submit = SubmitField('Sign up') 
 
     def validate_username(self,username):
         user = User.query.filter_by(username=username.data).first()
+
+        # I don't know why validators of username above cannot limit the word sequence, so I did this
+        if len(username.data) > 20  or len(username.data) < 2:
+            raise ValidationError('The username must be at length 2 to 20')
 
         if user:
             raise ValidationError('This Username was already taken, please use another')
@@ -32,8 +37,6 @@ class RegistrationForm(FlaskForm):
             raise ValidationError('This Email was already taken, please use another')
 
 
-
-
 class LoginForm(FlaskForm):
 
     email = StringField('Email',
@@ -43,4 +46,32 @@ class LoginForm(FlaskForm):
                             validators=[DataRequired()] )    
 
     remember = BooleanField('Remember Me')
-    submit = SubmitField('Login')      
+    submit = SubmitField('Login') 
+
+
+class UpdateAccountForm(FlaskForm):
+
+    #Validator : optional allows empty field
+    username = StringField('Username',
+                           validators=[Length(min=2, max=20), Optional()])
+    email = StringField('Email',
+                        validators=[Email(), Optional()])
+
+    # Allow only jpg, png
+    picture = FileField('Update Profile Picture', validators=[FileAllowed(['jpg', 'png'])])
+    submit = SubmitField('Update')
+
+
+    def validate_on_username(self,username):
+        if username.data != current_user.username :           
+            user = User.query.filter_by(username=username.data).first()
+            if user:
+                raise ValidationError('That username was already taken')
+
+
+    def validate_on_email(self,email):
+        if email.data != current_user.email:
+            user = User.query.filter_by(email=email.data).first()
+            
+            if user:
+                raise ValidationError('That Email was already taken')            

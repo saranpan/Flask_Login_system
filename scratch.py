@@ -10,3 +10,8 @@ from flaskblog.models import User
 #db.session.commit()
 
 print(User.query.all())
+
+#deleted_user = User.query.filter_by(username='junior').first()
+#print(deleted_user)
+#db.session.delete(deleted_user)
+#db.session.commit()
