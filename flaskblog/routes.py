@@ -1,6 +1,6 @@
-from flask import render_template, url_for, flash, redirect, request
+from flask import render_template, url_for, flash, redirect, request, abort
 from flaskblog import app, db, bcrypt 
-from flaskblog.forms import RegistrationForm, LoginForm, UpdateAccountForm
+from flaskblog.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm
 from flaskblog.models import User, Post
 from flask_login import login_user, current_user, logout_user, login_required
 from PIL import Image
@@ -23,7 +23,8 @@ post = [
 @app.route("/")
 @app.route("/home")
 def home():
-    return render_template('home.html',posts=post)
+    posts = Post.query.all()
+    return render_template('home.html',posts=posts)
 
 @app.route("/about")
 def about():
@@ -56,8 +57,7 @@ def login():
         return redirect('home')
 
     form = LoginForm()
-    if form.validate_on_submit():
-        
+    if form.validate_on_submit():        
         user = User.query.filter_by(email=form.email.data).first()
 
         if user and bcrypt.check_password_hash(user.password, form.password.data):
@@ -81,8 +81,25 @@ def logout():
     logout_user()
     return redirect('/home')
 
+# Create new picture file 
+def split_file_name(file_name):
+    return file_name.split('.')[0]
+
+def check_duplicate_file(check_file,all_file):
+    name_list = list(map(split_file_name,all_file))
+    if check_file in name_list:
+        random_hex = secrets.token_hex(8)
+        return check_duplicate_file(random_hex, all_file)
+    else: 
+        return check_file
+
 def save_picture(form_picture):
-    random_hex = secrets.token_hex(8)
+
+    all_picture = os.listdir('flaskblog\static\profile_pics')
+    
+    # Prevent duplicated profile picture file name
+    random_hex = check_duplicate_file(secrets.token_hex(8),all_picture)
+
     #f_ext as file name (eg. JPG, PNG)
     _, f_ext = os.path.splitext(form_picture.filename)
     picture_fn = random_hex + f_ext
@@ -104,22 +121,91 @@ def save_picture(form_picture):
 def account():
     form = UpdateAccountForm()
 
+
     if form.validate_on_submit():
+
         if form.picture.data:
             image_file_name = save_picture(form.picture.data)
             current_user.image_file = image_file_name
+            
 
         if form.username.data:
             current_user.username = form.username.data
 
+
         if form.email.data:
             current_user.email = form.email.data
-            
-        
+
+        flash('Your account has been updated!', 'success')
         #current_user.image_file = 
         db.session.commit()
+        return redirect(url_for('account'))
 
 
     image_file = url_for('static', filename='profile_pics/' + current_user.image_file)
+    
     return render_template('account.html',title='account',image_file=image_file, form=form)
 
+@app.route("/post/new" , methods=['GET', 'POST'])
+@login_required
+def create_post():
+    form = PostForm()
+    if form.validate_on_submit():
+        post = Post(title=form.title.data, content=form.content.data, author=current_user)
+        db.session.add(post)
+        db.session.commit()
+        flash('You have created a new post!', 'success')
+
+        return redirect(url_for('home')) 
+
+    return render_template('create_post.html',title='New Post', form=form, legend='Create New Post')
+
+@app.route("/post/<int:post_id>" , methods=['GET', 'POST'])
+@login_required
+def post(post_id):
+    post = Post.query.get_or_404(post_id)
+
+    return render_template('post.html',title=post.title, post=post)
+
+@app.route("/post/<int:post_id>/update" , methods=['GET', 'POST'])
+@login_required
+def update_post(post_id):
+
+    post = Post.query.get_or_404(post_id)
+    # prevent /update directly
+    if current_user != post.author:
+        abort(403)
+    
+    form = PostForm()
+
+    if form.validate_on_submit():
+        post.title = form.title.data
+        post.content = form.content.data
+
+        flash('The post is updated!', 'success')
+        db.session.commit()
+        return redirect(url_for('post',post_id=post.id))
+        #Not a blank space form
+    form.title.data = post.title
+    form.content.data = post.content
+
+
+    return render_template('create_post.html',title=post.title, post=post, form=form,legend='Update form')
+
+@app.route("/post/<int:post_id>/delete" , methods=['POST'])
+@login_required
+def delete_post(post_id):
+
+    #no form required (just input button)
+    # So, No get method, cuz we don't get any input as form type
+    post =  Post.query.get_or_404(post_id)
+
+    if current_user != post.author:
+        abort(403)
+
+    db.session.delete(post)
+    db.session.commit()
+    flash('Your post is deleted!','success')
+    return redirect(url_for('home'))
+        
+        

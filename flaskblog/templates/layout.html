@@ -39,6 +39,7 @@
               <!-- Current user already happens -->
               {% if current_user.is_authenticated %}
                 <div class="navbar-nav">
+                  <a class="nav-item nav-link" href="/post/new">New post</a>
                   <a class="nav-item nav-link">Hi {{current_user.username}}</a>
                   <a class="nav-item nav-link" href="/account">Account</a>
                   <a class="nav-item nav-link" href="/logout">Logout</a>

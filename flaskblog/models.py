@@ -17,7 +17,7 @@ class User(db.Model,UserMixin):
 
     # Instead of print __main__ object, but as this instead
     def __repr__(self):
-        return f"User('{self.username}', '{self.email}', '{self.image_file}')"
+        return f"User('{self.id}','{self.username}', '{self.email}', '{self.image_file}','{self.posts}')"
 
 
 class Post(db.Model):
