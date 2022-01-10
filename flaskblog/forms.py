@@ -88,3 +88,8 @@ class PostForm(FlaskForm):
                         validators=[DataRequired(),Length(min=3)])
 
     submit = SubmitField('Post!')
+"""
+    def validate_content(self,content):
+        if len(content.data) < 3:
+            raise ValidationError('The post must be at length 3')           
+"""

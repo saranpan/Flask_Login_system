@@ -10,17 +10,73 @@
 
     
     {% if current_user == post.author %}
-
-        <!-- Update Button -->
-        <a href = '{{url_for('update_post', post_id = post.id)}}' class='btn-outline-info' >Update</a>
-
-        <!-- Delete Button -->
-<!-- Button trigger modal -->
-        <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal">
-            Delete
-        </button>
         
-        <!-- Modal -->
+        <!-- Update Button -->
+
+        <button type="button" class="btn btn-secondary btn-sm mb-3 justify-content-end" data-bs-toggle="modal" data-bs-target="#updateModal">
+                Edit <i class="bi bi-pen"></i>
+                       
+        </button>
+
+            <!-- Delete Button -->
+        <button type="button" class="btn btn-danger btn-sm mb-3 justify-content-end" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                Delete <i class="bi bi-trash-fill"></i>
+        </button>
+
+
+        <!-- Update Modal -->
+        <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="updateModalLabel">Edit Post ?</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <!--Work on this Next!-->
+                    <div class="modal-body">
+
+                        
+
+                                <img class="rounded-circle article-img" src= "{{ url_for('static', filename = 'profile_pics/'+post.author.image_file) }}">    
+                                <div class="article-metadata">
+                                    <a class="mr-2" href="#">{{ post.author.username }}</a>
+                                    <small class="text-muted">{{ post.date_posted.strftime("%m/%d/%Y, %H:%M:%S") }}</small>
+                                </div>
+
+                                <form action="{{url_for('update_post', post_id = post.id )}}" method="POST">
+                                    {{ form.hidden_tag() }}
+                                    <div class="media-body">    
+                                        <!-- Title -->
+                                        {{ form.title.label(class="form-control-label") }}
+                                        {{ form.title(class="form-control form-control-lg") }}
+
+                                        <!-- Content -->
+                                        {{ form.content.label(class="form-control-label") }}                
+                                        {% if form.content.errors %}
+                                            {{ form.content(class="form-control form-control-lg is-invalid") }}
+                                            <!-- Tell all errors -->
+                                            <div class="invalid-feedback">
+                                                {% for error in form.content.errors %}
+                                                    <span>{{error}}</span>
+                                                {% endfor %}
+                                            </div>                       
+                                        {% else %}             
+                                            {{ form.content(class="form-control form-control-lg") }}                        
+                                        {% endif %}  
+                                    </div>                              
+                             </div>
+
+                                    <div class="modal-footer">                                    
+                                        {{form.submit(class='btn btn-outline-success')}}                       
+                                        </form>          
+                                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Modal -->
         <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -29,7 +85,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                    This will be permanently deleted..
+                        This will be permanently deleted..
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

@@ -143,7 +143,7 @@ def account():
 
 
     image_file = url_for('static', filename='profile_pics/' + current_user.image_file)
-    
+
     return render_template('account.html',title='account',image_file=image_file, form=form)
 
 @app.route("/post/new" , methods=['GET', 'POST'])
@@ -164,20 +164,26 @@ def create_post():
 @login_required
 def post(post_id):
     post = Post.query.get_or_404(post_id)
+    form = PostForm()
 
-    return render_template('post.html',title=post.title, post=post)
+    if request.method == "GET":        
+        form.title.data = post.title
+        form.content.data = post.content
 
-@app.route("/post/<int:post_id>/update" , methods=['GET', 'POST'])
+    return render_template('post.html',title=post.title, post=post,form=form)
+
+@app.route("/post/<int:post_id>/update" , methods=['POST'])
 @login_required
 def update_post(post_id):
 
     post = Post.query.get_or_404(post_id)
+    form = PostForm()
+
     # prevent /update directly
     if current_user != post.author:
         abort(403)
-    
-    form = PostForm()
 
+    
     if form.validate_on_submit():
         post.title = form.title.data
         post.content = form.content.data
@@ -186,11 +192,9 @@ def update_post(post_id):
         db.session.commit()
         return redirect(url_for('post',post_id=post.id))
         #Not a blank space form
-    form.title.data = post.title
-    form.content.data = post.content
-
-
-    return render_template('create_post.html',title=post.title, post=post, form=form,legend='Update form')
+    else:
+        flash('Update Failed! Make sure the letter in content is higher than 3','danger')
+        return redirect(url_for('post',post_id=post.id))
 
 @app.route("/post/<int:post_id>/delete" , methods=['POST'])
 @login_required
