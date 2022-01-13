@@ -23,7 +23,9 @@ post = [
 @app.route("/")
 @app.route("/home")
 def home():
-    posts = Post.query.all()
+    #/home?page=1 as default
+    page= request.args.get('page',1,type=int)
+    posts = Post.query.order_by(Post.date_posted.desc()).paginate(per_page=3,page=page)
     return render_template('home.html',posts=posts)
 
 @app.route("/about")
@@ -117,7 +119,7 @@ def save_picture(form_picture):
 
 
 @app.route("/account" , methods=['GET', 'POST'])
-@login_required
+@login_required  # If validate by current_user.is_authenticated is True, then allow
 def account():
     form = UpdateAccountForm()
 
@@ -211,5 +213,15 @@ def delete_post(post_id):
     db.session.commit()
     flash('Your post is deleted!','success')
     return redirect(url_for('home'))
-        
+
+
+@app.route("/<string:username>")
+@login_required
+def user_page(username):
+    page= request.args.get('page',1,type=int)
+
+    user = User.query.filter_by(username=username).first_or_404()
+    posts = Post.query.filter_by(author=user).order_by(Post.date_posted.desc()).paginate(per_page=3,page=page)
+    print(f'Saran said {posts}')
+    return render_template('username_page.html',user=user,posts=posts)
         

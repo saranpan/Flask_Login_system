@@ -11,6 +11,14 @@ body {
   .bg-steel {
     background-color: #5f788a;
   }
+
+  .bg-grass {
+    background-color: #2d6645;
+  }
+
+  .text-grass {
+    color: #6bc590;
+  }
   
   .site-header .navbar-nav .nav-link {
     color: #cbd5db;
@@ -84,6 +92,6 @@ body {
     }
     
   a:link {
-    color:rgb(221, 21, 194);  
+    color:rgb(104, 101, 103);  
     text-decoration:none;
     }
