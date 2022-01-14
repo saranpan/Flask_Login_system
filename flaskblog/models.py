@@ -1,7 +1,9 @@
 from datetime import datetime
-from flaskblog import db, app, login_manager
+# current current_app
+from flask import current_app
 from flask_login import UserMixin
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+from flaskblog import db, login_manager
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -17,14 +19,14 @@ class User(db.Model,UserMixin):
     posts = db.relationship('Post', backref='author', lazy=True)
 
     def request_token(self):
-        s = Serializer(app.config['SECRET_KEY'],1800)
+        s = Serializer(current_app.config['SECRET_KEY'],1800)
         token = s.dumps({'user_id': self.id}).decode('utf-8')
         return token
     
     @staticmethod
     def verify_reset_token(token):
 
-        s = Serializer(app.config['SECRET_KEY'])
+        s = Serializer(current_app.config['SECRET_KEY'])
 
         try:
             user_id = s.loads(token)['user_id']

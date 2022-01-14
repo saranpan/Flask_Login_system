@@ -13,10 +13,10 @@
                 </div>
                 <div class = "col-10">
                     <div class="article-metadata">
-                        <a class="text-primary mr-2" href="{{ url_for('user_page', username=post.author.username) }}">{{ post.author.username }}</a>
+                        <a class="text-primary mr-2" href="{{ url_for('users.user_page', username=post.author.username) }}">{{ post.author.username }}</a>
                         <small class="text-muted">{{ post.date_posted.strftime("%m/%d/%Y, %H:%M:%S") }}</small>
                     </div>
-                    <h1><a class="article-title" href="{{url_for('post', post_id=post.id)}}">{{ post.title }}</a></h1>
+                    <h1><a class="article-title" href="{{url_for('posts.post', post_id=post.id)}}">{{ post.title }}</a></h1>
                     <p class="article-content">{{ post.content }}</p>
                 </div>
             </div>
@@ -30,16 +30,16 @@
 
 <!-- If it's the first page -->
 {% if posts.page != 1 %}
-    <a class="btn btn-outline-success" href={{ url_for('home', page=posts.page - 1) }}>Prev</a>   
+    <a class="btn btn-outline-success" href={{ url_for('main.home', page=posts.page - 1) }}>Prev</a>   
 {% endif %}
 
 {% for page_num in posts.iter_pages(left_edge=1, right_edge=1,left_current=1) %}              
 
     {% if page_num %}
         {% if page_num == posts.page %}
-            <a class="btn btn-success" href={{ url_for('home', page=page_num) }}>{{page_num}}</a>   
+            <a class="btn btn-success" href={{ url_for('main.home', page=page_num) }}>{{page_num}}</a>   
         {% else %}
-            <a class="btn btn-outline-success" href={{ url_for('home', page=page_num) }}>{{page_num}}</a>   
+            <a class="btn btn-outline-success" href={{ url_for('main.home', page=page_num) }}>{{page_num}}</a>   
 
         {% endif %}
     {% else %}
@@ -49,7 +49,7 @@
 
 <!-- If it is the last page -->
 {% if posts.page != posts.pages %}
-    <a class="btn btn-outline-success" href={{ url_for('home', page=posts.page + 1) }}>Next</a>   
+    <a class="btn btn-outline-success" href={{ url_for('main.home', page=posts.page + 1) }}>Next</a>   
 {% endif %}
 
 {% endblock content %}
