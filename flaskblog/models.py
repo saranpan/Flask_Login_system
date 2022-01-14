@@ -28,13 +28,12 @@ class User(db.Model,UserMixin):
 
         try:
             user_id = s.loads(token)['user_id']
-
+        
         except:
             return None
         
+        # query.get requires Primary key as input 
         return User.query.get(user_id)
-            
-            
 
     # Instead of print __main__ object, but as this instead
     def __repr__(self):

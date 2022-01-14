@@ -228,7 +228,7 @@ def user_page(username):
     print(f'Saran said {posts}')
     return render_template('username_page.html',user=user,posts=posts)
         
-
+# Reset password zone 
 @app.route("/request_password", methods=['GET', 'POST'])
 def request_password():
     if current_user.is_authenticated:
@@ -279,7 +279,7 @@ def send_reset_mail(user):
     token = user.request_token()
 
     msg = Message('Password Reset Request',
-                  sender='noreply@demo.com',
+                  sender='wallik.noreply@gmail.com',
                   recipients=[user.email])
 
     msg.body = f'''Hi {user.username}
