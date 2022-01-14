@@ -88,8 +88,27 @@ class PostForm(FlaskForm):
                         validators=[DataRequired(),Length(min=3)])
 
     submit = SubmitField('Post!')
-"""
-    def validate_content(self,content):
-        if len(content.data) < 3:
-            raise ValidationError('The post must be at length 3')           
-"""
+
+
+class RequestPasswordForm(FlaskForm):
+
+    email = StringField('Email',
+                            validators=[DataRequired(),Email()] )
+                                
+    submit = SubmitField('Request') 
+
+    def validate_email(self,email):
+        email = User.query.filter_by(email=email.data).first()
+
+        if email is None:
+            raise ValidationError('There is no email like this, please register it')
+
+class ResetPasswordForm(FlaskForm):
+
+    password = PasswordField('Password',
+                            validators=[DataRequired()] )    
+
+    confirm_password = PasswordField('Confirm Password',
+                            validators=[DataRequired(),EqualTo('password')])       
+
+    submit = SubmitField('Reset') 

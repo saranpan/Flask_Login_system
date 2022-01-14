@@ -1,10 +1,13 @@
 from flask import render_template, url_for, flash, redirect, request, abort
 from flaskblog import app, db, bcrypt 
-from flaskblog.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm
+from flaskblog.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm, RequestPasswordForm, ResetPasswordForm
 from flaskblog.models import User, Post
 from flask_login import login_user, current_user, logout_user, login_required
 from PIL import Image
 import secrets,os
+
+from flaskblog import mail
+from flask_mail import Message
 
 
 post = [
@@ -225,3 +228,64 @@ def user_page(username):
     print(f'Saran said {posts}')
     return render_template('username_page.html',user=user,posts=posts)
         
+
+@app.route("/request_password", methods=['GET', 'POST'])
+def request_password():
+    if current_user.is_authenticated:
+        return redirect('home')
+
+    form = RequestPasswordForm()
+    if form.validate_on_submit():
+
+        user = User.query.filter_by(email=form.email.data).first()
+        send_reset_mail(user)
+        flash(f'We have sent the request link to {form.email.data}! check it out !','success')
+
+        # How we can save the token ?
+
+        return redirect(url_for('login'))
+
+    return render_template('request_password.html', title='Request Password', form=form)
+
+
+@app.route("/reset_password/<token>", methods=['GET', 'POST'])
+def reset_password(token):
+    if current_user.is_authenticated:
+        return redirect('home')
+
+    user = User.verify_reset_token(token)
+
+    if user is None:
+        flash('This is expired token or invalid token, please try again','danger')
+        return redirect('home')
+
+    
+    #user = User.query.filter_by(id=user_id).first()
+    form = ResetPasswordForm()
+
+    if form.validate_on_submit():     
+        user.password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        db.session.commit()
+        flash(f'Your password has been changed !','success')
+
+
+        return redirect(url_for('login'))
+
+    return render_template('reset_password.html', title='Reset Password', form=form)
+
+
+
+def send_reset_mail(user):
+    token = user.request_token()
+
+    msg = Message('Password Reset Request',
+                  sender='noreply@demo.com',
+                  recipients=[user.email])
+
+    msg.body = f'''Hi {user.username}
+    To reset your password, visit the following link:
+{url_for('reset_password', token=token, _external=True)}
+
+Ignore this message if you didn't request'''
+
+    mail.send(msg)
