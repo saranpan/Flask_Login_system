@@ -5,7 +5,9 @@ Jinja2==2.10.1
 MarkupSafe==1.1.1
 Werkzeug==0.15.5
 numpy>=1.9.2
-scipy>=0.15.1
-scikit-learn>=0.18
-matplotlib>=1.4.3
-pandas>=0.19
+flask_sqlalchemy == 2.5.1
+flask_bcrypt == 0.7.1
+flask_login == 0.5.0
+flask_mail == 0.9.1
+flask_wtf == 0.15.1
+wtforms == 2.3.3
