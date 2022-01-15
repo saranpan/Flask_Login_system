@@ -25,9 +25,7 @@ def save_picture(form_picture):
     #f_ext as file name (eg. JPG, PNG)
     _, f_ext = os.path.splitext(form_picture.filename)
     picture_fn = random_hex + f_ext
-    picture_path = os.path.join(app.root_path, 'static\profile_pics', picture_fn)
-    
-    
+    picture_path = os.path.join(current_app.root_path, 'static\profile_pics', picture_fn)
 
     #To save the memory of our database
     output_size = (125,125)
@@ -47,7 +45,7 @@ def send_reset_mail(user):
 
     msg.body = f'''Hi {user.username}
     To reset your password, visit the following link:
-{url_for('reset_password', token=token, _external=True)}
+{url_for('users.reset_password', token=token, _external=True)}
 
 Ignore this message if you didn't request'''
 

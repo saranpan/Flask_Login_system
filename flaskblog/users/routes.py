@@ -47,8 +47,8 @@ def login():
             
             next_page = request.args.get('next')
 
-            return redirect(url_for(next_page)) if next_page else redirect(url_for('main.home'))
-      
+            # replace redirect(url_for(next_page)) by redirect(next_page)
+            return redirect(next_page) if next_page else redirect(url_for('main.home'))      
         
         else:
             flash('Login Unsuccessful. Please check username and password', 'danger')
